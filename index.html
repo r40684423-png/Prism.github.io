@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prism Forum</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#08080f;--bg2:#0d0d1a;--bg3:#111120;--bg4:#161628;--card:#0f0f1e;
+  --border:#252540;--border2:#353560;
+  --purple:#7c3aed;--purple2:#9d5cf0;--purple3:#b87fff;--purple4:#6d28d9;--accent:#a855f7;
+  --text:#e0e0f0;--text2:#8888b0;--text3:#505070;
+  --danger:#ef4444;--success:#22c55e;--gold:#f59e0b;--info:#3b82f6;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--bg2);}::-webkit-scrollbar-thumb{background:var(--purple4);border-radius:3px;}
+body::before{content:'';position:fixed;inset:0;opacity:.25;pointer-events:none;z-index:9998;
+background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");}
+.glow{position:fixed;border-radius:50%;filter:blur(130px);pointer-events:none;z-index:0;}
+.glow1{width:700px;height:700px;background:radial-gradient(circle,rgba(124,58,237,.1) 0%,transparent 70%);top:-250px;left:-150px;}
+.glow2{width:500px;height:500px;background:radial-gradient(circle,rgba(168,85,247,.07) 0%,transparent 70%);bottom:-100px;right:-100px;}
+
+/* AUTH */
+#auth-screen{position:fixed;inset:0;background:rgba(0,0,0,.92);backdrop-filter:blur(16px);display:flex;align-items:center;justify-content:center;z-index:900;}
+.auth-card{background:var(--bg3);border:1px solid var(--border2);border-radius:22px;padding:44px 38px;width:430px;max-width:96vw;box-shadow:0 0 80px rgba(124,58,237,.25);position:relative;overflow:hidden;animation:slideUp .4s ease;}
+.auth-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--purple),var(--purple3),transparent);}
+@keyframes slideUp{from{opacity:0;transform:translateY(22px) scale(.97);}to{opacity:1;transform:none;}}
+.auth-logo-main{font-family:'Rajdhani',sans-serif;font-size:46px;font-weight:700;background:linear-gradient(135deg,#c4a0ff,var(--purple),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:5px;text-transform:uppercase;text-align:center;line-height:1;}
+.auth-logo-sub{color:var(--text3);font-size:10px;letter-spacing:4px;text-transform:uppercase;margin-top:5px;text-align:center;margin-bottom:28px;}
+.auth-tabs{display:flex;background:var(--bg4);border-radius:11px;padding:4px;margin-bottom:26px;border:1px solid var(--border);}
+.atab{flex:1;padding:10px;text-align:center;cursor:pointer;border-radius:8px;font-size:13px;font-weight:700;color:var(--text3);transition:all .2s;}
+.atab.on{background:var(--purple);color:#fff;box-shadow:0 4px 18px rgba(124,58,237,.45);}
+.aform{display:flex;flex-direction:column;gap:14px;}.aform.hide{display:none;}
+.fg{display:flex;flex-direction:column;gap:5px;}
+.fg label{font-size:10px;color:var(--text2);font-weight:700;letter-spacing:1.2px;text-transform:uppercase;}
+.fg input,.fg select,.fg textarea{background:var(--bg4);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--text);font-family:'Nunito',sans-serif;font-size:13px;outline:none;transition:all .2s;width:100%;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(124,58,237,.15);}
+.fg select option{background:var(--bg3);}
+.fg textarea{resize:vertical;min-height:80px;}
+.aerr{color:var(--danger);font-size:11px;text-align:center;background:rgba(239,68,68,.1);padding:7px 10px;border-radius:8px;border:1px solid rgba(239,68,68,.2);display:none;}
+.abtn{background:linear-gradient(135deg,var(--purple4),var(--purple),var(--accent));border:none;border-radius:11px;padding:13px;color:#fff;font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;}
+.abtn:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(124,58,237,.5);}
+
+/* APP */
+#app{display:none;min-height:100vh;position:relative;z-index:1;}
+header{background:rgba(13,13,26,.92);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;backdrop-filter:blur(20px);}
+.hdr{max-width:1300px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;gap:16px;}
+.logo{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;background:linear-gradient(135deg,#c4a0ff,var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:3px;text-transform:uppercase;flex-shrink:0;cursor:pointer;user-select:none;}
+nav{display:flex;gap:2px;flex:1;}
+.nb{padding:7px 13px;border-radius:8px;border:none;background:transparent;color:var(--text2);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;}
+.nb:hover,.nb.on{background:rgba(124,58,237,.2);color:var(--purple3);}
+.hdr-r{display:flex;align-items:center;gap:9px;margin-left:auto;}
+.ubadge{display:flex;align-items:center;gap:8px;padding:5px 12px;background:var(--bg4);border:1px solid var(--border);border-radius:30px;cursor:pointer;transition:all .2s;}
+.ubadge:hover{border-color:var(--purple);}
+.av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#fff;flex-shrink:0;background:linear-gradient(135deg,var(--purple),var(--accent));}
+.av.sm{width:22px;height:22px;font-size:9px;}.av.md{width:36px;height:36px;font-size:14px;}.av.lg{width:48px;height:48px;font-size:19px;}
+.uname{font-size:13px;font-weight:700;color:var(--text);}
+.logoutbtn{padding:6px 12px;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--text3);font-family:'Nunito',sans-serif;font-size:12px;cursor:pointer;transition:all .2s;font-weight:600;}
+.logoutbtn:hover{border-color:var(--danger);color:var(--danger);}
+
+/* LAYOUT */
+.wrap{max-width:1300px;margin:0 auto;padding:28px 24px;display:grid;grid-template-columns:1fr 286px;gap:22px;}
+@media(max-width:820px){.wrap{grid-template-columns:1fr;}.sidebar{display:none;}}
+.page{display:none;}.page.on{display:block;}
+.ptitle{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:var(--text);letter-spacing:1px;margin-bottom:18px;display:flex;align-items:center;gap:10px;}
+.ptitle span{color:var(--purple3);}
+
+/* CATEGORIES */
+.catsec{margin-bottom:26px;}
+.cathdr{background:linear-gradient(135deg,var(--bg3),var(--bg4));border:1px solid var(--border);border-radius:12px 12px 0 0;padding:12px 18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border2);}
+.caticon{width:34px;height:34px;border-radius:8px;background:rgba(124,58,237,.2);border:1px solid rgba(124,58,237,.3);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.catname{font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;color:var(--purple3);letter-spacing:1px;text-transform:uppercase;}
+.catdesc{font-size:11px;color:var(--text3);margin-top:2px;}
+.forumlist{border:1px solid var(--border);border-top:none;border-radius:0 0 12px 12px;overflow:hidden;}
+.frow{display:grid;grid-template-columns:1fr 70px 70px 185px;align-items:center;padding:12px 18px;border-bottom:1px solid var(--border);transition:background .2s;cursor:pointer;gap:12px;}
+.frow:last-child{border-bottom:none;}
+.frow:hover{background:rgba(124,58,237,.06);}
+.finfo{display:flex;gap:11px;align-items:center;}
+.ficon{width:36px;height:36px;border-radius:9px;background:var(--bg4);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.fname{font-weight:700;font-size:14px;color:var(--text);transition:color .2s;}
+.frow:hover .fname{color:var(--purple3);}
+.fdesc{font-size:11px;color:var(--text3);margin-top:2px;}
+.sc{text-align:center;}.sn{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:var(--purple3);}
+.sl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;}
+.lp{display:flex;align-items:center;gap:7px;}
+.lptext{font-size:11px;}.lptitle{color:var(--text2);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px;}
+.lpmeta{color:var(--text3);font-size:10px;}
+.empty-cat{padding:22px;text-align:center;color:var(--text3);font-size:13px;background:var(--card);}
+
+/* TOPICS */
+.backbtn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text2);font-size:13px;cursor:pointer;margin-bottom:17px;transition:all .2s;font-family:'Nunito',sans-serif;font-weight:700;}
+.backbtn:hover{border-color:var(--purple);color:var(--purple3);}
+.topicshdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px;}
+.newbtn{padding:9px 18px;background:linear-gradient(135deg,var(--purple4),var(--purple));border:none;border-radius:9px;color:#fff;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:5px;}
+.newbtn:hover{box-shadow:0 4px 18px rgba(124,58,237,.45);transform:translateY(-1px);}
+.trow{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:13px 18px;margin-bottom:7px;display:grid;grid-template-columns:1fr 70px 70px;gap:12px;align-items:center;cursor:pointer;transition:all .2s;}
+.trow:hover{border-color:var(--border2);background:var(--bg3);transform:translateX(2px);}
+.tmain{display:flex;gap:10px;align-items:center;}
+.tdot{width:7px;height:7px;border-radius:50%;background:var(--purple);flex-shrink:0;box-shadow:0 0 5px var(--purple);}
+.tdot.new{background:var(--accent);box-shadow:0 0 8px var(--accent);}
+.ttitle{font-size:14px;font-weight:700;color:var(--text);}
+.tmeta{font-size:11px;color:var(--text3);margin-top:3px;}.tmeta strong{color:var(--text2);}
+.badge{display:inline-block;padding:2px 7px;border-radius:20px;font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-right:4px;}
+.bpin{background:rgba(245,158,11,.15);color:var(--gold);border:1px solid rgba(245,158,11,.3);}
+
+/* POSTS */
+.posthdr{background:var(--bg3);border:1px solid var(--border);border-radius:11px;padding:18px 22px;margin-bottom:14px;}
+.posthdr h1{font-family:'Rajdhani',sans-serif;font-size:23px;font-weight:700;color:var(--text);}
+.bc{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text3);margin-bottom:13px;}
+.bc a{color:var(--purple3);cursor:pointer;}.bc a:hover{text-decoration:underline;}
+.pcard{background:var(--card);border:1px solid var(--border);border-radius:11px;margin-bottom:10px;overflow:hidden;transition:border-color .2s;}
+.pcard:hover{border-color:var(--border2);}
+.pinner{display:grid;grid-template-columns:185px 1fr;}
+.pauthor{background:rgba(124,58,237,.05);border-right:1px solid var(--border);padding:18px;text-align:center;}
+.paname{font-weight:700;font-size:14px;margin-top:9px;}
+.parole{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;padding:3px 8px;border-radius:20px;display:inline-block;margin-top:4px;background:rgba(124,58,237,.15);}
+.pastats{margin-top:12px;font-size:10px;color:var(--text3);line-height:2.1;border-top:1px solid var(--border);padding-top:10px;}
+.pbody{padding:18px 22px;}
+.pdate{font-size:11px;color:var(--text3);margin-bottom:12px;padding-bottom:9px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.pcontent{font-size:14px;line-height:1.85;color:var(--text2);}
+.pactions{display:flex;gap:7px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);flex-wrap:wrap;}
+.bsm{padding:5px 12px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--text3);font-family:'Nunito',sans-serif;font-size:11px;cursor:pointer;transition:all .2s;font-weight:700;}
+.bsm:hover{border-color:var(--purple);color:var(--purple3);background:rgba(124,58,237,.1);}
+.bsm.red:hover{border-color:var(--danger);color:var(--danger);background:rgba(239,68,68,.1);}
+
+/* ATTACHMENTS */
+.attachments{margin-top:14px;display:flex;flex-wrap:wrap;gap:10px;}
+.att-img{border-radius:8px;max-width:260px;max-height:200px;object-fit:cover;border:1px solid var(--border);cursor:pointer;transition:all .2s;}
+.att-img:hover{border-color:var(--purple);transform:scale(1.02);}
+.att-file{display:flex;align-items:center;gap:9px;padding:9px 14px;background:var(--bg4);border:1px solid var(--border);border-radius:9px;cursor:pointer;transition:all .2s;text-decoration:none;}
+.att-file:hover{border-color:var(--purple);}
+.att-file-icon{font-size:22px;}
+.att-file-info{flex:1;}
+.att-file-name{font-size:12px;font-weight:700;color:var(--text);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.att-file-size{font-size:10px;color:var(--text3);}
+
+/* IMAGE LIGHTBOX */
+#lightbox{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;z-index:9500;cursor:zoom-out;}
+#lightbox.open{display:flex;}
+#lightbox img{max-width:92vw;max-height:92vh;border-radius:10px;box-shadow:0 0 60px rgba(0,0,0,.8);}
+#lightbox-close{position:absolute;top:20px;right:24px;font-size:28px;color:white;cursor:pointer;opacity:.7;}
+#lightbox-close:hover{opacity:1;}
+
+/* REPLY BOX */
+.replybox{background:var(--bg3);border:1px solid var(--border);border-radius:11px;padding:18px;margin-top:18px;}
+.replybox h3{font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;color:var(--text);margin-bottom:12px;}
+.replybox textarea{width:100%;background:var(--bg4);border:1px solid var(--border);border-radius:9px;padding:12px 14px;color:var(--text);font-family:'Nunito',sans-serif;font-size:13px;resize:vertical;min-height:90px;outline:none;transition:all .2s;}
+.replybox textarea:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(124,58,237,.15);}
+.replybox textarea::placeholder{color:var(--text3);}
+
+/* FILE UPLOAD ZONE */
+.upload-zone{border:2px dashed var(--border);border-radius:10px;padding:16px;margin-top:10px;text-align:center;cursor:pointer;transition:all .2s;position:relative;}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--purple);background:rgba(124,58,237,.05);}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.upload-zone-text{font-size:12px;color:var(--text3);pointer-events:none;}
+.upload-zone-text span{color:var(--purple3);font-weight:700;}
+.upload-previews{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+.uprev{position:relative;display:inline-block;}
+.uprev img{width:70px;height:70px;object-fit:cover;border-radius:8px;border:1px solid var(--border);}
+.uprev-file{display:flex;align-items:center;gap:6px;padding:6px 10px;background:var(--bg4);border:1px solid var(--border);border-radius:8px;font-size:11px;color:var(--text2);}
+.uprev-del{position:absolute;top:-5px;right:-5px;width:18px;height:18px;border-radius:50%;background:var(--danger);border:none;color:white;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;}
+.replyfooter{display:flex;justify-content:flex-end;margin-top:10px;}
+
+/* PROFILE */
+.profbanner{background:linear-gradient(135deg,rgba(124,58,237,.25),rgba(168,85,247,.1));border:1px solid var(--border);border-radius:16px;padding:30px;margin-bottom:18px;display:flex;align-items:center;gap:22px;}
+.profinfo{flex:1;}
+.profuser{font-family:'Rajdhani',sans-serif;font-size:30px;font-weight:700;color:var(--text);}
+.profjoined{color:var(--text3);font-size:12px;margin-top:7px;}
+.profstats{display:flex;gap:22px;margin-top:14px;}
+.pst{text-align:center;}.pstn{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:var(--purple3);}
+.pstl{font-size:10px;color:var(--text3);text-transform:uppercase;}
+.settingscard{background:var(--card);border:1px solid var(--border);border-radius:11px;overflow:hidden;margin-bottom:14px;}
+.scard-hdr{padding:13px 18px;border-bottom:1px solid var(--border);font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:var(--purple3);letter-spacing:1px;text-transform:uppercase;background:rgba(124,58,237,.05);}
+.scard-body{padding:16px 18px;display:flex;flex-direction:column;gap:13px;}
+
+/* ADMIN */
+.admgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-bottom:22px;}
+@media(max-width:600px){.admgrid{grid-template-columns:repeat(2,1fr);}}
+.admcard{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:18px;cursor:pointer;transition:all .2s;text-align:center;}
+.admcard:hover{border-color:var(--purple);transform:translateY(-2px);box-shadow:0 8px 24px rgba(124,58,237,.18);}
+.admcard-icon{font-size:32px;margin-bottom:10px;}
+.admcard-title{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--purple3);text-transform:uppercase;letter-spacing:.8px;}
+.admcard-desc{font-size:11px;color:var(--text3);margin-top:5px;}
+.adm-section{background:var(--card);border:1px solid var(--border);border-radius:11px;overflow:hidden;margin-bottom:16px;}
+.adm-sec-hdr{padding:13px 18px;border-bottom:1px solid var(--border);font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:var(--purple3);letter-spacing:1px;text-transform:uppercase;background:rgba(124,58,237,.05);display:flex;align-items:center;justify-content:space-between;}
+.utbl{width:100%;border-collapse:collapse;}
+.utbl th,.utbl td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);}
+.utbl th{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;background:var(--bg4);font-weight:700;}
+.utbl td{font-size:13px;color:var(--text2);}
+.utbl tr:last-child td{border-bottom:none;}.utbl tr:hover td{background:rgba(124,58,237,.04);}
+.role-pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.5px;}
+
+/* SIDEBAR */
+.sidebar{display:flex;flex-direction:column;gap:15px;}
+.scard{background:var(--card);border:1px solid var(--border);border-radius:11px;overflow:hidden;}
+.scard-h{padding:12px 16px;border-bottom:1px solid var(--border);font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--purple3);letter-spacing:1px;text-transform:uppercase;background:rgba(124,58,237,.05);}
+.scard-b{padding:13px 16px;}
+.memrow{display:flex;align-items:center;gap:9px;padding:5px 0;border-bottom:1px solid var(--border);}
+.memrow:last-child{border-bottom:none;}
+.meminfo{flex:1;}.memname{font-size:12px;font-weight:700;color:var(--text);}.memrole{font-size:10px;color:var(--text3);}
+.ondot{width:7px;height:7px;border-radius:50%;background:var(--success);box-shadow:0 0 5px var(--success);flex-shrink:0;}
+.statgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.statblk{background:var(--bg4);border:1px solid var(--border);border-radius:9px;padding:11px;text-align:center;}
+.statblk-n{font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;background:linear-gradient(135deg,var(--purple3),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.statblk-l{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-top:1px;}
+
+/* MODALS */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;z-index:500;}
+.modal-overlay.open{display:flex;animation:fadeIn .25s ease;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.mbox{background:var(--bg3);border:1px solid var(--border2);border-radius:16px;padding:28px 30px;width:580px;max-width:96vw;box-shadow:0 0 60px rgba(124,58,237,.2);animation:slideUp .3s ease;max-height:90vh;overflow-y:auto;}
+.mbox.sm{width:420px;}
+.mhdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.mtitle{font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;color:var(--text);}
+.mclose{width:30px;height:30px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--text3);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.mclose:hover{border-color:var(--danger);color:var(--danger);}
+.mfooter{display:flex;justify-content:flex-end;gap:9px;margin-top:18px;}
+.btn-sec{padding:9px 18px;border:1px solid var(--border);border-radius:9px;background:transparent;color:var(--text2);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;}
+.btn-sec:hover{border-color:var(--purple);color:var(--purple3);}
+.btn-danger{padding:9px 18px;border:1px solid rgba(239,68,68,.4);border-radius:9px;background:rgba(239,68,68,.1);color:var(--danger);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;}
+.btn-danger:hover{background:rgba(239,68,68,.2);}
+
+/* THEME PICKER */
+.theme-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:8px;}
+.theme-swatch{border-radius:10px;padding:14px 8px;cursor:pointer;border:2px solid transparent;transition:all .2s;text-align:center;font-size:11px;font-weight:700;color:rgba(255,255,255,.7);}
+.theme-swatch:hover{transform:scale(1.04);}
+.theme-swatch.sel{border-color:#fff;box-shadow:0 0 14px rgba(255,255,255,.3);}
+.theme-swatch-dot{width:24px;height:24px;border-radius:50%;margin:0 auto 6px;box-shadow:0 0 10px currentColor;}
+
+/* COLOR SWATCHES */
+.color-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:6px;}
+.cswatch{width:26px;height:26px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .2s;}
+.cswatch.sel{border-color:#fff;transform:scale(1.2);}
+
+/* TOAST */
+.toast{position:fixed;bottom:22px;right:22px;background:var(--bg3);border:1px solid var(--purple);border-radius:11px;padding:12px 18px;color:var(--text);font-size:13px;font-weight:700;box-shadow:0 8px 32px rgba(124,58,237,.35);z-index:9000;transform:translateY(70px);opacity:0;transition:all .3s;display:flex;align-items:center;gap:9px;}
+.toast.show{transform:translateY(0);opacity:1;}
+
+/* ROLE SECTION DIVIDER */
+.role-section-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);padding:8px 14px 4px;border-top:1px solid var(--border);margin-top:6px;}
+</style>
+</head>
+<body>
+<div class="glow glow1"></div>
+<div class="glow glow2"></div>
+
+<!-- AUTH -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo-main" id="auth-logo">PRISM</div>
+    <div class="auth-logo-sub">Community Forum</div>
+    <div class="auth-tabs">
+      <div class="atab on" onclick="switchTab('login')">Войти</div>
+      <div class="atab" onclick="switchTab('register')">Регистрация</div>
+    </div>
+    <div class="aform" id="login-form">
+      <div class="fg"><label>Логин</label><input type="text" id="li-user" placeholder="Ваш логин"/></div>
+      <div class="fg"><label>Пароль</label><input type="password" id="li-pass" placeholder="Ваш пароль" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+      <div class="aerr" id="li-err">Неверный логин или пароль</div>
+      <button class="abtn" onclick="doLogin()">Войти</button>
+    </div>
+    <div class="aform hide" id="reg-form">
+      <div class="fg"><label>Логин</label><input type="text" id="rg-user" placeholder="Придумайте логин"/></div>
+      <div class="fg"><label>Пароль</label><input type="password" id="rg-pass" placeholder="Придумайте пароль"/></div>
+      <div class="fg"><label>Повтор пароля</label><input type="password" id="rg-pass2" placeholder="Повторите пароль"/></div>
+      <div class="aerr" id="rg-err"></div>
+      <button class="abtn" onclick="doRegister()">Создать аккаунт</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header>
+    <div class="hdr">
+      <span class="logo" onclick="goHome()" id="hdr-logo">⬡ PRISM</span>
+      <nav>
+        <button class="nb on" id="nb-forum" onclick="showPage('main')">Форум</button>
+        <button class="nb" id="nb-profile" onclick="showPage('profile')">Профиль</button>
+        <button class="nb" id="nb-admin" style="display:none" onclick="showPage('admin')">⚙ Управление</button>
+      </nav>
+      <div class="hdr-r">
+        <div class="ubadge" onclick="showPage('profile')">
+          <div class="av" id="hdr-av">?</div>
+          <span class="uname" id="hdr-name">—</span>
+        </div>
+        <button class="logoutbtn" onclick="doLogout()">Выйти</button>
+      </div>
+    </div>
+  </header>
+  <div class="wrap">
+    <div class="content">
+
+      <!-- MAIN -->
+      <div class="page on" id="page-main">
+        <div class="ptitle" id="main-title">⬡ <span>Форум</span></div>
+        <div id="welcome-banner" style="display:none;background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.3);border-radius:11px;padding:14px 18px;margin-bottom:20px;font-size:13px;color:var(--text2);line-height:1.6"></div>
+        <div id="cats-container"></div>
+      </div>
+
+      <!-- TOPICS -->
+      <div class="page" id="page-topics">
+        <button class="backbtn" onclick="showPage('main')">← Назад</button>
+        <div class="topicshdr">
+          <div class="ptitle" id="topics-title" style="margin:0"></div>
+          <button class="newbtn" onclick="openNewTopicModal()">+ Новая тема</button>
+        </div>
+        <div id="topics-list"></div>
+      </div>
+
+      <!-- POST -->
+      <div class="page" id="page-post">
+        <button class="backbtn" onclick="showPage('topics')">← К темам</button>
+        <div class="bc" id="post-bc"></div>
+        <div class="posthdr"><h1 id="post-title-h"></h1></div>
+        <div id="posts-list"></div>
+        <div class="replybox">
+          <h3>✍ Написать ответ</h3>
+          <textarea id="reply-ta" placeholder="Введите ответ..."></textarea>
+          <div class="upload-zone" id="reply-drop-zone">
+            <input type="file" id="reply-files" multiple accept="image/*,.zip,.rar,.7z,.tar,.gz,.pdf,.txt,.doc,.docx" onchange="handleFiles(this.files,'reply')"/>
+            <div class="upload-zone-text">📎 <span>Прикрепить файлы</span> — фото, ZIP архивы, документы<br><span style="font-size:10px;color:var(--text3)">Перетащите сюда или нажмите · Макс. 10МБ на файл</span></div>
+          </div>
+          <div class="upload-previews" id="reply-previews"></div>
+          <div class="replyfooter"><button class="abtn" onclick="submitReply()" style="padding:10px 22px;margin:0">Отправить</button></div>
+        </div>
+      </div>
+
+      <!-- PROFILE -->
+      <div class="page" id="page-profile">
+        <div class="profbanner">
+          <div class="av lg" id="prof-av">?</div>
+          <div class="profinfo">
+            <div class="profuser" id="prof-user">—</div>
+            <div style="margin-top:4px" id="prof-role-display"></div>
+            <div class="profjoined" id="prof-joined">На форуме с: —</div>
+            <div class="profstats">
+              <div class="pst"><div class="pstn" id="prof-posts">0</div><div class="pstl">Постов</div></div>
+              <div class="pst"><div class="pstn" id="prof-topics">0</div><div class="pstl">Тем</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="settingscard">
+          <div class="scard-hdr">🔒 Сменить пароль</div>
+          <div class="scard-body">
+            <div class="fg"><label>Новый пароль</label><input type="password" id="set-newpass" placeholder="Новый пароль"/></div>
+            <div class="fg"><label>Повтор</label><input type="password" id="set-newpass2" placeholder="Повторите пароль"/></div>
+            <button class="abtn" onclick="savePassword()" style="align-self:flex-start;padding:10px 22px;margin:0">Сохранить пароль</button>
+          </div>
+        </div>
+        <div class="settingscard">
+          <div class="scard-hdr" style="color:#ef4444">⚠ Опасная зона</div>
+          <div class="scard-body">
+            <div style="font-size:13px;color:var(--text2);line-height:1.6">Удаление аккаунта необратимо. Все данные будут удалены.</div>
+            <button class="btn-danger" onclick="confirmDeleteOwnAccount()" style="align-self:flex-start">🗑 Удалить мой аккаунт</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ADMIN -->
+      <div class="page" id="page-admin">
+        <div class="ptitle">⚙ <span>Панель управления</span></div>
+        <div class="admgrid" id="admin-cards-grid">
+          <!-- Cards injected by JS based on role -->
+        </div>
+        <div class="adm-section" id="adm-users-section">
+          <div class="adm-sec-hdr">👥 Пользователи
+            <button class="newbtn" id="btn-add-user" onclick="openModal('modal-add-user')" style="padding:6px 13px;font-size:12px">+ Добавить</button>
+          </div>
+          <div style="padding:0"><table class="utbl" id="adm-utbl"></table></div>
+        </div>
+      </div>
+
+    </div>
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="scard"><div class="scard-h">📊 Статистика</div><div class="scard-b">
+        <div class="statgrid">
+          <div class="statblk"><div class="statblk-n" id="st-users">0</div><div class="statblk-l">Юзеров</div></div>
+          <div class="statblk"><div class="statblk-n" id="st-posts">0</div><div class="statblk-l">Постов</div></div>
+          <div class="statblk"><div class="statblk-n" id="st-topics">0</div><div class="statblk-l">Тем</div></div>
+          <div class="statblk"><div class="statblk-n">1</div><div class="statblk-l">Онлайн</div></div>
+        </div>
+      </div></div>
+      <div class="scard"><div class="scard-h">🟢 Онлайн</div><div class="scard-b" id="sb-online"></div></div>
+      <div class="scard"><div class="scard-h">⭐ Топ участников</div><div class="scard-b" id="sb-top"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- IMAGE LIGHTBOX -->
+<div id="lightbox" onclick="closeLightbox()">
+  <span id="lightbox-close">✕</span>
+  <img id="lightbox-img" src="" alt=""/>
+</div>
+
+<!-- ========== MODALS ========== -->
+
+<!-- FORUM SETTINGS (Директор only) -->
+<div class="modal-overlay" id="modal-forum-settings">
+  <div class="mbox">
+    <div class="mhdr"><div class="mtitle">🌐 Настройки форума</div><button class="mclose" onclick="closeModal('modal-forum-settings')">✕</button></div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="fg"><label>Название форума</label><input type="text" id="fs-name" placeholder="Prism"/></div>
+      <div class="fg"><label>Описание / подзаголовок</label><input type="text" id="fs-desc" placeholder="Community Forum"/></div>
+      <div class="fg"><label>Приветственное сообщение (главная)</label><textarea id="fs-welcome" placeholder="Добро пожаловать!"></textarea></div>
+      <div class="fg"><label>Регистрация</label>
+        <select id="fs-reg"><option value="1">Открыта</option><option value="0">Закрыта</option></select>
+      </div>
+      <div class="fg"><label>Загрузка файлов пользователями</label>
+        <select id="fs-uploads"><option value="1">Разрешена</option><option value="0">Запрещена (только персонал)</option></select>
+      </div>
+      <div class="fg"><label>Создание тем пользователями</label>
+        <select id="fs-topics"><option value="1">Разрешено всем</option><option value="0">Только персонал</option></select>
+      </div>
+      <div class="fg"><label>Минимальная длина поста (символов)</label>
+        <input type="number" id="fs-minpost" placeholder="1" min="1" max="500"/>
+      </div>
+      <hr style="border-color:var(--border);margin:4px 0"/>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--purple3);text-transform:uppercase;letter-spacing:.8px">🎨 Тема оформления</div>
+      <div class="theme-grid" id="theme-grid"></div>
+      <div class="fg" style="margin-top:4px"><label>Или свой основной цвет (hex)</label>
+        <div style="display:flex;gap:10px;align-items:center">
+          <input type="text" id="fs-custom-color" placeholder="#7c3aed" style="width:130px;flex:none"/>
+          <button class="abtn" onclick="applyCustomColor()" style="padding:8px 14px;margin:0;font-size:12px">Применить</button>
+          <div id="fs-color-preview" style="width:32px;height:32px;border-radius:8px;border:1px solid var(--border);flex-shrink:0"></div>
+        </div>
+      </div>
+    </div>
+    <div class="mfooter">
+      <button class="btn-sec" onclick="closeModal('modal-forum-settings')">Отмена</button>
+      <button class="abtn" onclick="saveForumSettings()" style="padding:9px 20px;margin:0">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<!-- CATEGORIES -->
+<div class="modal-overlay" id="modal-categories">
+  <div class="mbox">
+    <div class="mhdr"><div class="mtitle">🗂 Управление разделами</div><button class="mclose" onclick="closeModal('modal-categories')">✕</button></div>
+    <div id="cats-admin-list" style="margin-bottom:18px"></div>
+    <div style="background:var(--bg4);border:1px solid var(--border);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--purple3);text-transform:uppercase">Новая категория</div>
+      <div class="fg"><label>Название</label><input type="text" id="nc-name" placeholder="Общение"/></div>
+      <div class="fg"><label>Описание</label><input type="text" id="nc-desc" placeholder="Свободное общение"/></div>
+      <div class="fg"><label>Иконка (эмодзи)</label><input type="text" id="nc-icon" placeholder="💬" maxlength="4" style="width:80px"/></div>
+      <button class="abtn" onclick="addCategory()" style="align-self:flex-start;padding:9px 18px;margin:0">Добавить</button>
+    </div>
+    <div style="background:var(--bg4);border:1px solid var(--border);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px;margin-top:14px">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--purple3);text-transform:uppercase">Новый подраздел</div>
+      <div class="fg"><label>В категорию</label><select id="nf-cat"></select></div>
+      <div class="fg"><label>Название</label><input type="text" id="nf-name" placeholder="Общий чат"/></div>
+      <div class="fg"><label>Описание</label><input type="text" id="nf-desc" placeholder="Разговоры"/></div>
+      <div class="fg"><label>Иконка</label><input type="text" id="nf-icon" placeholder="💬" maxlength="4" style="width:80px"/></div>
+      <button class="abtn" onclick="addForum()" style="align-self:flex-start;padding:9px 18px;margin:0">Добавить подраздел</button>
+    </div>
+  </div>
+</div>
+
+<!-- ROLES -->
+<div class="modal-overlay" id="modal-roles">
+  <div class="mbox">
+    <div class="mhdr"><div class="mtitle">🎭 Управление ролями</div><button class="mclose" onclick="closeModal('modal-roles')">✕</button></div>
+    <div id="roles-list" style="margin-bottom:18px"></div>
+    <div style="background:var(--bg4);border:1px solid var(--border);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--purple3);text-transform:uppercase">Новая роль</div>
+      <div class="fg"><label>Название роли</label><input type="text" id="nr-name" placeholder="VIP"/></div>
+      <div class="fg"><label>Цвет роли</label>
+        <input type="text" id="nr-color" placeholder="#f59e0b" style="width:130px"/>
+        <div class="color-row" id="preset-colors"></div>
+      </div>
+      <button class="abtn" onclick="addRole()" style="align-self:flex-start;padding:9px 18px;margin:0">Создать роль</button>
+    </div>
+  </div>
+</div>
+
+<!-- ASSIGN ROLE -->
+<div class="modal-overlay" id="modal-assign-role">
+  <div class="mbox sm">
+    <div class="mhdr"><div class="mtitle">👑 Выдать роль</div><button class="mclose" onclick="closeModal('modal-assign-role')">✕</button></div>
+    <div style="display:flex;flex-direction:column;gap:13px">
+      <div class="fg"><label>Логин пользователя</label><input type="text" id="ar-user" placeholder="username"/></div>
+      <div class="fg"><label>Роль</label><select id="ar-role"></select></div>
+      <div class="aerr" id="ar-err"></div>
+    </div>
+    <div class="mfooter">
+      <button class="btn-sec" onclick="closeModal('modal-assign-role')">Отмена</button>
+      <button class="abtn" onclick="assignRole()" style="padding:9px 20px;margin:0">Выдать</button>
+    </div>
+  </div>
+</div>
+
+<!-- NEW TOPIC -->
+<div class="modal-overlay" id="modal-new-topic">
+  <div class="mbox">
+    <div class="mhdr"><div class="mtitle">📝 Создать тему</div><button class="mclose" onclick="closeModal('modal-new-topic')">✕</button></div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="fg"><label>Заголовок</label><input type="text" id="nt-title" placeholder="Введите заголовок..."/></div>
+      <div class="fg"><label>Текст</label><textarea id="nt-content" placeholder="Напишите первое сообщение..." style="min-height:110px"></textarea></div>
+      <div class="fg"><label>Прикрепить файлы (фото / ZIP / документы)</label>
+        <div class="upload-zone" style="margin-top:0">
+          <input type="file" id="topic-files" multiple accept="image/*,.zip,.rar,.7z,.tar,.gz,.pdf,.txt,.doc,.docx" onchange="handleFiles(this.files,'topic')"/>
+          <div class="upload-zone-text">📎 <span>Выберите файлы</span> · Фото, архивы или документы · Макс 10МБ</div>
+        </div>
+        <div class="upload-previews" id="topic-previews"></div>
+      </div>
+    </div>
+    <div class="mfooter">
+      <button class="btn-sec" onclick="closeModal('modal-new-topic')">Отмена</button>
+      <button class="abtn" onclick="createTopic()" style="padding:9px 20px;margin:0">Создать</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD USER -->
+<div class="modal-overlay" id="modal-add-user">
+  <div class="mbox sm">
+    <div class="mhdr"><div class="mtitle">➕ Добавить пользователя</div><button class="mclose" onclick="closeModal('modal-add-user')">✕</button></div>
+    <div style="display:flex;flex-direction:column;gap:13px">
+      <div class="fg"><label>Логин</label><input type="text" id="au-user" placeholder="username"/></div>
+      <div class="fg"><label>Пароль</label><input type="password" id="au-pass" placeholder="password"/></div>
+      <div class="fg"><label>Роль</label><select id="au-role"></select></div>
+      <div class="aerr" id="au-err"></div>
+    </div>
+    <div class="mfooter">
+      <button class="btn-sec" onclick="closeModal('modal-add-user')">Отмена</button>
+      <button class="abtn" onclick="adminAddUser()" style="padding:9px 20px;margin:0">Создать</button>
+    </div>
+  </div>
+</div>
+
+<!-- DEL TOPICS -->
+<div class="modal-overlay" id="modal-del-topics">
+  <div class="mbox">
+    <div class="mhdr"><div class="mtitle">🗑 Удаление тем</div><button class="mclose" onclick="closeModal('modal-del-topics')">✕</button></div>
+    <div id="del-topics-list"></div>
+  </div>
+</div>
+
+<!-- CONFIRM -->
+<div class="modal-overlay" id="modal-confirm">
+  <div class="mbox sm">
+    <div class="mhdr"><div class="mtitle" id="confirm-title">Подтвердить?</div><button class="mclose" onclick="closeModal('modal-confirm')">✕</button></div>
+    <p id="confirm-msg" style="color:var(--text2);font-size:13px;line-height:1.6"></p>
+    <div class="mfooter">
+      <button class="btn-sec" onclick="closeModal('modal-confirm')">Отмена</button>
+      <button class="btn-danger" id="confirm-ok">Подтвердить</button>
+    </div>
+  </div>
+</div>
+
+<!-- BAN USER -->
+<div class="modal-overlay" id="modal-ban">
+  <div class="mbox sm">
+    <div class="mhdr"><div class="mtitle">🚫 Заблокировать</div><button class="mclose" onclick="closeModal('modal-ban')">✕</button></div>
+    <div style="display:flex;flex-direction:column;gap:13px">
+      <div class="fg"><label>Причина бана</label><input type="text" id="ban-reason" placeholder="Нарушение правил..."/></div>
+    </div>
+    <div class="mfooter">
+      <button class="btn-sec" onclick="closeModal('modal-ban')">Отмена</button>
+      <button class="btn-danger" onclick="executeBan()">Заблокировать</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toast-icon">✓</span><span id="toast-msg">Готово!</span></div>
+
+<script>
+// ===================== STORAGE =====================
+const S={
+  get(k){try{return JSON.parse(localStorage.getItem('pf_'+k));}catch{return null;}},
+  set(k,v){try{localStorage.setItem('pf_'+k,JSON.stringify(v));}catch(e){console.warn('Storage full',e);}}
+};
+
+// ===================== ROLES CONFIG =====================
+// Персонал
+const STAFF_ROLES = ['Директор','Куратор','Помощник куратора','Главный разработчик','Помощник гл. разработчика','Разработчик','Дизайнер','Тех. Разработчик','Спец. обслуживания'];
+// Обычные
+const MEMBER_ROLES = ['ВИП','Участник','Модератор'];
+// Все кто имеет права управления (кроме Директора у которого всё)
+const MOD_ROLES = ['Модератор','Куратор','Главный разработчик','Тех. Разработчик'];
+
+function isDirector(u){ return u && u.role === 'Директор'; }
+function isStaff(u){ return u && STAFF_ROLES.includes(u.role); }
+function isModerator(u){ return u && (u.role === 'Модератор' || isDirector(u) || isStaff(u)); }
+function canManagePanel(u){ return u && (isDirector(u) || MOD_ROLES.includes(u.role) || isStaff(u)); }
+
+// ===================== DATA =====================
+let users     = S.get('users')     || [];
+let cats      = S.get('cats')      || [];
+let topics    = S.get('topics')    || {};
+let posts     = S.get('posts')     || {};
+let roles     = S.get('roles')     || [];
+let fSettings = S.get('fsettings') || {name:'Prism',desc:'Community Forum',welcome:'',reg:1,uploads:1,topics:1,minpost:1,theme:'purple',customColor:''};
+
+// Init default roles
+if(!roles.length){
+  roles=[
+    // Персонал
+    {name:'Директор',            color:'#ff0055', group:'staff'},
+    {name:'Куратор',             color:'#ff6600', group:'staff'},
+    {name:'Помощник куратора',   color:'#ff8c00', group:'staff'},
+    {name:'Главный разработчик', color:'#9b00ff', group:'staff'},
+    {name:'Помощник гл. разработчика', color:'#7c3aed', group:'staff'},
+    {name:'Разработчик',         color:'#6366f1', group:'staff'},
+    {name:'Дизайнер',            color:'#0891b2', group:'staff'},
+    {name:'Тех. Разработчик',    color:'#059669', group:'staff'},
+    {name:'Спец. обслуживания',  color:'#0077ff', group:'staff'},
+    // Обычные
+    {name:'Модератор',           color:'#f59e0b', group:'member'},
+    {name:'ВИП',                 color:'#a855f7', group:'member'},
+    {name:'Участник',            color:'#7c7ca0', group:'member'},
+  ];
+  S.set('roles',roles);
+}
+
+// Init Admin account (Директор)
+if(!users.find(u=>u.username==='Admin')){
+  users.push({username:'Admin',password:'Prism#2025',role:'Директор',posts:0,topics:0,joined:new Date().toLocaleDateString('ru-RU'),banned:false});
+  S.set('users',users);
+}
+// Remove old admin if exists
+const oldAdmin = users.find(u=>u.username==='admin' && u.role==='Администратор');
+if(oldAdmin){ oldAdmin.role='Участник'; S.set('users',users); }
+
+let currentUser=null,curCatId=null,curForumId=null,curTopicIdx=null;
+let pendingFiles={reply:[],topic:[]};
+let banTargetIdx=null;
+
+// ===================== THEMES =====================
+const THEMES={
+  purple:  {label:'Фиолет',   bg:'#08080f',bg2:'#0d0d1a',bg3:'#111120',bg4:'#161628',card:'#0f0f1e',border:'#252540',border2:'#353560',purple:'#7c3aed',purple3:'#b87fff',purple4:'#6d28d9',accent:'#a855f7'},
+  blue:    {label:'Синий',    bg:'#05080f',bg2:'#080d1a',bg3:'#0c1020',bg4:'#101524',card:'#090d1c',border:'#1e2840',border2:'#2a3860',purple:'#2563eb',purple3:'#93c5fd',purple4:'#1d4ed8',accent:'#3b82f6'},
+  green:   {label:'Зелёный',  bg:'#050f08',bg2:'#081a0d',bg3:'#0c2010',bg4:'#102514',card:'#091c0d',border:'#1e4028',border2:'#2a5535',purple:'#16a34a',purple3:'#86efac',purple4:'#15803d',accent:'#22c55e'},
+  red:     {label:'Красный',  bg:'#0f0505',bg2:'#1a0808',bg3:'#200c0c',bg4:'#251010',card:'#1c0909',border:'#401818',border2:'#602020',purple:'#dc2626',purple3:'#fca5a5',purple4:'#b91c1c',accent:'#ef4444'},
+  orange:  {label:'Оранж.',   bg:'#0f0900',bg2:'#1a1000',bg3:'#201400',bg4:'#251800',card:'#1c1200',border:'#402800',border2:'#603a00',purple:'#d97706',purple3:'#fcd34d',purple4:'#b45309',accent:'#f59e0b'},
+  cyan:    {label:'Циан',     bg:'#020d0f',bg2:'#04141a',bg3:'#061820',bg4:'#081c24',card:'#05141c',border:'#103040',border2:'#184560',purple:'#0891b2',purple3:'#67e8f9',purple4:'#0e7490',accent:'#06b6d4'},
+  pink:    {label:'Розовый',  bg:'#0f0509',bg2:'#1a0810',bg3:'#200c16',bg4:'#25101c',card:'#1c0912',border:'#401830',border2:'#604050',purple:'#db2777',purple3:'#f9a8d4',purple4:'#be185d',accent:'#ec4899'},
+  dark:    {label:'Тёмный',   bg:'#050505',bg2:'#0a0a0a',bg3:'#0f0f0f',bg4:'#141414',card:'#080808',border:'#202020',border2:'#303030',purple:'#888888',purple3:'#cccccc',purple4:'#666666',accent:'#aaaaaa'},
+};
+
+function applyTheme(themeKey,customHex){
+  let t=THEMES[themeKey]||THEMES.purple;
+  if(customHex&&/^#[0-9a-fA-F]{6}$/.test(customHex)){
+    const h=customHex;
+    t={...THEMES.purple,purple:h,purple3:lightenHex(h,50),purple4:darkenHex(h,20),accent:lightenHex(h,20)};
+  }
+  const r=document.documentElement.style;
+  Object.entries(t).forEach(([k,v])=>r.setProperty('--'+k,v));
+}
+function lightenHex(hex,amt){let r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);r=Math.min(255,r+amt);g=Math.min(255,g+amt);b=Math.min(255,b+amt);return'#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');}
+function darkenHex(hex,amt){let r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);r=Math.max(0,r-amt);g=Math.max(0,g-amt);b=Math.max(0,b-amt);return'#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');}
+
+function buildThemeGrid(){
+  const cur=fSettings.theme||'purple';
+  document.getElementById('theme-grid').innerHTML=Object.entries(THEMES).map(([k,t])=>`
+    <div class="theme-swatch${cur===k?' sel':''}" style="background:${t.bg};border-color:${cur===k?'#fff':t.border2}" onclick="selectTheme('${k}')">
+      <div class="theme-swatch-dot" style="background:${t.purple};color:${t.purple}"></div>
+      <span style="color:${t.purple3};font-size:10px">${t.label}</span>
+    </div>`).join('');
+}
+function selectTheme(k){fSettings.theme=k;fSettings.customColor='';document.getElementById('fs-custom-color').value='';applyTheme(k);buildThemeGrid();document.getElementById('fs-color-preview').style.background=THEMES[k].purple;}
+function applyCustomColor(){const h=document.getElementById('fs-custom-color').value.trim();if(!/^#[0-9a-fA-F]{6}$/.test(h)){showToast('Введите цвет в формате #rrggbb','⚠');return;}fSettings.customColor=h;fSettings.theme='custom';applyTheme('custom',h);document.getElementById('fs-color-preview').style.background=h;document.querySelectorAll('.theme-swatch').forEach(el=>el.classList.remove('sel'));showToast('Цвет применён ✓');}
+
+// ===================== AUTH =====================
+function switchTab(t){
+  ['login','register'].forEach(x=>document.getElementById(x+'-form').classList.toggle('hide',x!==t));
+  document.querySelectorAll('.atab').forEach((el,i)=>el.classList.toggle('on',(i===0)===(t==='login')));
+}
+function doLogin(){
+  const u=document.getElementById('li-user').value.trim();
+  const p=document.getElementById('li-pass').value;
+  const user=users.find(x=>x.username===u&&x.password===p);
+  const err=document.getElementById('li-err');
+  if(!user){err.textContent='Неверный логин или пароль';err.style.display='block';return;}
+  if(user.banned){err.textContent='Аккаунт заблокирован: '+(user.banReason||'нарушение правил');err.style.display='block';return;}
+  err.style.display='none'; enterForum(user);
+}
+function doRegister(){
+  if(parseInt(fSettings.reg)===0){document.getElementById('rg-err').textContent='Регистрация закрыта администрацией';document.getElementById('rg-err').style.display='block';return;}
+  const u=document.getElementById('rg-user').value.trim();
+  const p=document.getElementById('rg-pass').value;
+  const p2=document.getElementById('rg-pass2').value;
+  const err=document.getElementById('rg-err');
+  if(!u||!p){err.textContent='Заполните все поля';err.style.display='block';return;}
+  if(u.length<3){err.textContent='Логин минимум 3 символа';err.style.display='block';return;}
+  if(p.length<4){err.textContent='Пароль минимум 4 символа';err.style.display='block';return;}
+  if(p!==p2){err.textContent='Пароли не совпадают';err.style.display='block';return;}
+  if(users.find(x=>x.username===u)){err.textContent='Логин уже занят';err.style.display='block';return;}
+  err.style.display='none';
+  const nu={username:u,password:p,role:'Участник',posts:0,topics:0,joined:new Date().toLocaleDateString('ru-RU'),banned:false};
+  users.push(nu);S.set('users',users);
+  enterForum(nu);
+}
+function enterForum(user){
+  currentUser=user;
+  document.getElementById('auth-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  applyBranding();updateUI();showPage('main');
+}
+function doLogout(){
+  currentUser=null;
+  document.getElementById('app').style.display='none';
+  document.getElementById('auth-screen').style.display='flex';
+  document.getElementById('li-user').value='';document.getElementById('li-pass').value='';
+  switchTab('login');
+}
+function confirmDeleteOwnAccount(){
+  if(isDirector(currentUser)){showToast('Директор не может удалить свой аккаунт','⚠');return;}
+  openConfirm('Удалить свой аккаунт?','Все данные будут удалены. Необратимо.',()=>{
+    users=users.filter(u=>u.username!==currentUser.username);
+    S.set('users',users);doLogout();showToast('Аккаунт удалён');
+  });
+}
+
+// ===================== BRANDING =====================
+function applyBranding(){
+  const n=fSettings.name||'Prism';
+  document.title=n+' Forum';
+  document.getElementById('hdr-logo').textContent='⬡ '+n.toUpperCase();
+  document.getElementById('auth-logo').textContent=n.toUpperCase();
+  const w=fSettings.welcome||'';
+  const wb=document.getElementById('welcome-banner');
+  if(w){wb.textContent=w;wb.style.display='block';}else{wb.style.display='none';}
+  if(fSettings.customColor)applyTheme('custom',fSettings.customColor);
+  else applyTheme(fSettings.theme||'purple');
+}
+
+// ===================== ROLE COLOR =====================
+function roleColor(roleName){
+  const r=roles.find(x=>x.name===roleName);
+  return r?r.color:'#7c7ca0';
+}
+
+// ===================== UI =====================
+function updateUI(){
+  if(!currentUser)return;
+  const u=users.find(x=>x.username===currentUser.username);
+  if(u)currentUser=u;
+  const ini=currentUser.username[0].toUpperCase();
+  const rc=roleColor(currentUser.role);
+  document.getElementById('hdr-av').textContent=ini;
+  document.getElementById('hdr-av').style.background=`linear-gradient(135deg,${rc},#1a1a2e)`;
+  document.getElementById('hdr-name').textContent=currentUser.username;
+
+  // Show admin panel button for all staff + moderators
+  const showPanel = canManagePanel(currentUser);
+  document.getElementById('nb-admin').style.display=showPanel?'block':'none';
+
+  // profile
+  document.getElementById('prof-av').textContent=ini;
+  document.getElementById('prof-av').style.background=`linear-gradient(135deg,${rc},#1a1a2e)`;
+  document.getElementById('prof-user').textContent=currentUser.username;
+  document.getElementById('prof-role-display').innerHTML=`<span class="role-pill" style="background:${rc}22;color:${rc};border:1px solid ${rc}44">${currentUser.role}</span>`;
+  document.getElementById('prof-joined').textContent='На форуме с: '+(currentUser.joined||'—');
+  document.getElementById('prof-posts').textContent=currentUser.posts||0;
+  document.getElementById('prof-topics').textContent=currentUser.topics||0;
+
+  // stats
+  let tp=0,tt=0;
+  Object.values(topics).forEach(a=>tt+=a.length);
+  Object.values(posts).forEach(a=>tp+=a.length);
+  document.getElementById('st-users').textContent=users.length;
+  document.getElementById('st-posts').textContent=tp;
+  document.getElementById('st-topics').textContent=tt;
+
+  // sidebar online
+  document.getElementById('sb-online').innerHTML=`<div class="memrow">
+    <div class="av sm" style="background:linear-gradient(135deg,${rc},#1a1a2e)">${ini}</div>
+    <div class="meminfo"><div class="memname">${currentUser.username}</div><div class="memrole">${currentUser.role}</div></div>
+    <div class="ondot"></div></div>`;
+
+  // top users
+  const sorted=[...users].sort((a,b)=>(b.posts||0)-(a.posts||0)).slice(0,5);
+  document.getElementById('sb-top').innerHTML=sorted.map(u=>{const c=roleColor(u.role);return`<div class="memrow">
+    <div class="av sm" style="background:linear-gradient(135deg,${c},#1a1a2e)">${u.username[0].toUpperCase()}</div>
+    <div class="meminfo"><div class="memname">${u.username}</div><div class="memrole">${u.posts||0} постов</div></div>
+  </div>`;}).join('');
+
+  // Build admin panel cards based on role
+  buildAdminCards();
+}
+
+function buildAdminCards(){
+  if(!currentUser)return;
+  const dir = isDirector(currentUser);
+  const staff = isStaff(currentUser);
+  const mod = currentUser.role === 'Модератор';
+  let cards = '';
+
+  // Forum settings — ТОЛЬКО Директор
+  if(dir){
+    cards+=`<div class="admcard" onclick="openModal('modal-forum-settings')"><div class="admcard-icon">🌐</div><div class="admcard-title">Настройки форума</div><div class="admcard-desc">Только Директор</div></div>`;
+  }
+  // Categories — Директор + старший персонал
+  if(dir || ['Куратор','Главный разработчик'].includes(currentUser.role)){
+    cards+=`<div class="admcard" onclick="openModal('modal-categories')"><div class="admcard-icon">🗂</div><div class="admcard-title">Разделы</div><div class="admcard-desc">Добавить / удалить</div></div>`;
+  }
+  // Roles — только Директор
+  if(dir){
+    cards+=`<div class="admcard" onclick="openModal('modal-roles')"><div class="admcard-icon">🎭</div><div class="admcard-title">Роли</div><div class="admcard-desc">Создать роли с цветами</div></div>`;
+  }
+  // Assign role — Директор + Куратор
+  if(dir || currentUser.role === 'Куратор'){
+    cards+=`<div class="admcard" onclick="openModal('modal-assign-role')"><div class="admcard-icon">👑</div><div class="admcard-title">Выдать роль</div><div class="admcard-desc">По логину пользователя</div></div>`;
+  }
+  // Users — все кто имеет доступ к панели
+  cards+=`<div class="admcard" onclick="scrollToUsers()"><div class="admcard-icon">👥</div><div class="admcard-title">Пользователи</div><div class="admcard-desc">Управление аккаунтами</div></div>`;
+  // Delete topics — модераторы и выше
+  cards+=`<div class="admcard" onclick="openModal('modal-del-topics')"><div class="admcard-icon">🗑</div><div class="admcard-title">Удалить тему</div><div class="admcard-desc">Удаление любой темы</div></div>`;
+  // Add user — Директор + Куратор
+  if(dir || currentUser.role === 'Куратор'){
+    cards+=`<div class="admcard" onclick="openModal('modal-add-user')"><div class="admcard-icon">➕</div><div class="admcard-title">Добавить юзера</div><div class="admcard-desc">Создать аккаунт</div></div>`;
+  }
+
+  document.getElementById('admin-cards-grid').innerHTML=cards;
+}
+
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  document.getElementById('page-'+name).classList.add('on');
+  const nb=document.getElementById('nb-'+name==='main'?'forum':name==='admin'?'admin':'profile');
+  if(nb)nb.classList.add('on');
+  if(name==='admin'){renderAdminUsers();}
+  if(name==='main'){renderMain();}
+}
+function goHome(){showPage('main');}
+
+// ===================== FILES =====================
+function handleFiles(files,ctx){
+  const maxSize=10*1024*1024;
+  const allowed=['image/jpeg','image/png','image/gif','image/webp',
+    'application/zip','application/x-zip-compressed','application/x-rar-compressed',
+    'application/octet-stream','application/pdf','text/plain',
+    'application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+  Array.from(files).forEach(file=>{
+    if(file.size>maxSize){showToast(`${file.name}: файл слишком большой (макс 10МБ)`,'⚠');return;}
+    const isImg=file.type.startsWith('image/');
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const dataUrl=e.target.result;
+      pendingFiles[ctx].push({name:file.name,size:file.size,type:file.type,dataUrl,isImg});
+      renderPreviews(ctx);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+function renderPreviews(ctx){
+  const container=document.getElementById(ctx+'-previews');
+  container.innerHTML=pendingFiles[ctx].map((f,i)=>`
+    <div class="uprev">
+      ${f.isImg
+        ?`<img src="${f.dataUrl}" alt="${f.name}" title="${f.name}"/>`
+        :`<div class="uprev-file">📦 <span style="max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${f.name}</span></div>`}
+      <button class="uprev-del" onclick="removeFile('${ctx}',${i})">×</button>
+    </div>`).join('');
+}
+function removeFile(ctx,i){pendingFiles[ctx].splice(i,1);renderPreviews(ctx);}
+function clearFiles(ctx){pendingFiles[ctx]=[];renderPreviews(ctx);const inp=document.getElementById(ctx+'-files');if(inp)inp.value='';}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  const zone=document.getElementById('reply-drop-zone');
+  if(!zone)return;
+  zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag');});
+  zone.addEventListener('dragleave',()=>zone.classList.remove('drag'));
+  zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag');handleFiles(e.dataTransfer.files,'reply');});
+});
+
+function renderAttachments(attachments){
+  if(!attachments||!attachments.length)return'';
+  return`<div class="attachments">${attachments.map(f=>{
+    if(f.isImg)return`<img class="att-img" src="${f.dataUrl}" alt="${f.name}" title="${f.name}" onclick="openLightbox('${f.dataUrl}')"/>`;
+    const kb=f.size?Math.round(f.size/1024)+'KB':'';
+    const icon=f.name.match(/\.(zip|rar|7z|gz|tar)$/i)?'📦':f.name.match(/\.(pdf)$/i)?'📄':f.name.match(/\.(doc|docx)$/i)?'📝':'📎';
+    return`<a class="att-file" href="${f.dataUrl}" download="${f.name}" onclick="event.stopPropagation()">
+      <span class="att-file-icon">${icon}</span>
+      <div class="att-file-info"><div class="att-file-name">${f.name}</div><div class="att-file-size">${kb} · Нажмите для скачивания</div></div>
+      <span style="font-size:11px;color:var(--purple3);font-weight:700">⬇</span>
+    </a>`;
+  }).join('')}</div>`;
+}
+
+function openLightbox(src){document.getElementById('lightbox-img').src=src;document.getElementById('lightbox').classList.add('open');}
+function closeLightbox(){document.getElementById('lightbox').classList.remove('open');}
+
+// ===================== MAIN =====================
+function renderMain(){
+  const c=document.getElementById('cats-container');
+  if(!cats.length){
+    c.innerHTML=`<div style="text-align:center;padding:60px;color:var(--text3)">
+      <div style="font-size:52px;margin-bottom:18px">🗂</div>
+      <div style="font-size:16px;font-weight:700">Разделов пока нет</div>
+      <div style="font-size:13px;margin-top:8px">Директор может добавить разделы в панели управления</div>
+    </div>`;return;
+  }
+  c.innerHTML=cats.map(cat=>{
+    const forums=cat.forums||[];
+    return`<div class="catsec">
+      <div class="cathdr">
+        <div class="caticon">${cat.icon||'📂'}</div>
+        <div><div class="catname">${cat.name}</div><div class="catdesc">${cat.desc||''}</div></div>
+      </div>
+      <div class="forumlist">${forums.length?forums.map((f,fi)=>{
+        const tid=cat.id+'_'+fi;
+        const ft=topics[tid]||[];
+        const last=ft[ft.length-1];
+        const pc=ft.reduce((s,t,ti)=>s+(posts[tid+'_'+ti]||[]).length,0);
+        return`<div class="frow" onclick="showForumTopics('${cat.id}',${fi})">
+          <div class="finfo"><div class="ficon">${f.icon||'💬'}</div><div><div class="fname">${f.name}</div><div class="fdesc">${f.desc||''}</div></div></div>
+          <div class="sc"><div class="sn">${ft.length}</div><div class="sl">Тем</div></div>
+          <div class="sc"><div class="sn">${pc}</div><div class="sl">Постов</div></div>
+          <div class="lp">${last?`<div class="av sm" style="background:linear-gradient(135deg,${roleColor(users.find(u=>u.username===last.author)?.role||'Участник')},#1a1a2e)">${last.author[0].toUpperCase()}</div><div class="lptext"><div class="lptitle">${last.title}</div><div class="lpmeta">${last.date}</div></div>`:'<span style="color:var(--text3);font-size:11px">Пусто</span>'}</div>
+        </div>`;
+      }).join(''):'<div class="empty-cat">Нет подразделов</div>'}</div>
+    </div>`;
+  }).join('');
+}
+
+// ===================== TOPICS =====================
+function showForumTopics(catId,forumIdx){
+  curCatId=catId;curForumId=forumIdx;
+  const cat=cats.find(c=>c.id===catId);
+  const forum=cat.forums[forumIdx];
+  const tid=catId+'_'+forumIdx;
+  const ft=topics[tid]||[];
+  document.getElementById('topics-title').innerHTML=`${forum.icon||'💬'} <span>${forum.name}</span>`;
+  const list=document.getElementById('topics-list');
+  if(!ft.length){
+    list.innerHTML=`<div style="text-align:center;padding:50px;color:var(--text3)">
+      <div style="font-size:46px;margin-bottom:16px">💬</div>
+      <div style="font-size:15px;font-weight:700">Тем пока нет</div>
+      <div style="font-size:12px;margin-top:6px">Создайте первую тему!</div>
+    </div>`;
+  }else{
+    const canMod=canManagePanel(currentUser);
+    list.innerHTML=ft.map((t,i)=>{
+      const pc=(posts[tid+'_'+i]||[]).length;
+      const hasAtt=t.attachments&&t.attachments.length;
+      return`<div class="trow" onclick="showTopic(${i})">
+        <div class="tmain"><div class="tdot${i<2?' new':''}"></div><div>
+          ${t.pinned?'<span class="badge bpin">📌 Закреплено</span>':''}
+          ${hasAtt?'<span class="badge" style="background:rgba(59,130,246,.15);color:#93c5fd;border:1px solid rgba(59,130,246,.3)">📎</span>':''}
+          ${canMod?`<button onclick="event.stopPropagation();confirmDelTopic('${tid}',${i})" style="float:right;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:var(--danger);border-radius:6px;padding:3px 8px;font-size:10px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700">🗑</button>`:''}
+          <div class="ttitle">${t.title}</div>
+          <div class="tmeta">Автор: <strong>${t.author}</strong> · ${t.date}</div>
+        </div></div>
+        <div class="sc"><div class="sn">${pc}</div><div class="sl">Ответов</div></div>
+        <div class="sc"><div class="sn">${t.views||0}</div><div class="sl">Просм.</div></div>
+      </div>`;
+    }).join('');
+  }
+  showPage('topics');
+}
+
+function openNewTopicModal(){
+  // Check if topics restricted
+  if(parseInt(fSettings.topics)===0 && !canManagePanel(currentUser)){
+    showToast('Создание тем ограничено персоналом','⚠');return;
+  }
+  document.getElementById('nt-title').value='';
+  document.getElementById('nt-content').value='';
+  clearFiles('topic');
+  openModal('modal-new-topic');
+}
+
+function confirmDelTopic(tid,idx){
+  openConfirm('Удалить тему?','Тема и все ответы будут удалены.',()=>{
+    topics[tid].splice(idx,1);
+    const np={};
+    Object.keys(posts).forEach(k=>{
+      if(!k.startsWith(tid+'_')){np[k]=posts[k];return;}
+      const n=parseInt(k.split('_').pop());
+      if(n<idx)np[k]=posts[k];
+      else if(n>idx)np[tid+'_'+(n-1)]=posts[k];
+    });
+    posts=np;S.set('topics',topics);S.set('posts',posts);
+    showForumTopics(curCatId,curForumId);showToast('Тема удалена','🗑');
+  });
+}
+
+function createTopic(){
+  const title=document.getElementById('nt-title').value.trim();
+  const content=document.getElementById('nt-content').value.trim();
+  const minLen=parseInt(fSettings.minpost)||1;
+  if(!title||!content){showToast('Заполните все поля','⚠');return;}
+  if(content.length<minLen){showToast(`Минимальная длина поста: ${minLen} символов`,'⚠');return;}
+  const tid=curCatId+'_'+curForumId;
+  if(!topics[tid])topics[tid]=[];
+  const atts=pendingFiles.topic.map(f=>({name:f.name,size:f.size,type:f.type,dataUrl:f.dataUrl,isImg:f.isImg}));
+  topics[tid].push({title,content,author:currentUser.username,date:new Date().toLocaleString('ru-RU'),views:0,attachments:atts});
+  const u=users.find(x=>x.username===currentUser.username);
+  if(u){u.topics=(u.topics||0)+1;S.set('users',users);}
+  S.set('topics',topics);
+  clearFiles('topic');
+  closeModal('modal-new-topic');
+  showForumTopics(curCatId,curForumId);
+  showToast('Тема создана! 🎉');
+  updateUI();renderMain();
+}
+
+// ===================== POSTS =====================
+function showTopic(idx){
+  curTopicIdx=idx;
+  const tid=curCatId+'_'+curForumId;
+  const t=topics[tid][idx];
+  t.views=(t.views||0)+1;S.set('topics',topics);
+  document.getElementById('post-title-h').textContent=t.title;
+  const cat=cats.find(c=>c.id===curCatId);
+  const forum=cat.forums[curForumId];
+  document.getElementById('post-bc').innerHTML=`<a onclick="showPage('main')">Форум</a> › <a onclick="showPage('topics')">${forum.name}</a> › ${t.title}`;
+  const canUpload=parseInt(fSettings.uploads)!==0||canManagePanel(currentUser);
+  document.getElementById('reply-drop-zone').style.display=canUpload?'block':'none';
+  renderPosts();
+  showPage('post');
+}
+
+function renderPosts(){
+  const tid=curCatId+'_'+curForumId;
+  const t=topics[tid][curTopicIdx];
+  const pkey=tid+'_'+curTopicIdx;
+  const reps=posts[pkey]||[];
+  const all=[{author:t.author,content:t.content,date:t.date,op:true,attachments:t.attachments},...reps];
+  const canMod=canManagePanel(currentUser);
+  document.getElementById('posts-list').innerHTML=all.map((p,i)=>{
+    const u=users.find(x=>x.username===p.author)||{role:'Участник',posts:0,topics:0};
+    const rc=roleColor(u.role);
+    return`<div class="pcard">
+      <div class="pinner">
+        <div class="pauthor">
+          <div class="av md" style="margin:0 auto;background:linear-gradient(135deg,${rc},#1a1a2e)">${p.author[0].toUpperCase()}</div>
+          <div class="paname" style="color:${rc}">${p.author}</div>
+          <div class="parole" style="background:${rc}22;color:${rc};border:1px solid ${rc}44">${u.role}</div>
+          <div class="pastats">Постов: ${u.posts||0}<br>Тем: ${u.topics||0}</div>
+        </div>
+        <div class="pbody">
+          <div class="pdate"><span>#${i+1} · ${p.date}</span>
+            ${p.op?'<span style="color:var(--gold);font-size:10px;font-weight:700;background:rgba(245,158,11,.1);padding:2px 7px;border-radius:20px;border:1px solid rgba(245,158,11,.3)">ТС</span>':''}
+          </div>
+          <div class="pcontent">${p.content.replace(/\n/g,'<br>')}</div>
+          ${renderAttachments(p.attachments)}
+          <div class="pactions">
+            <button class="bsm" onclick="quotePost(${i})">💬 Цитата</button>
+            <button class="bsm" onclick="showToast('Лайк поставлен 👍')">👍 Лайк</button>
+            ${canMod&&i>0?`<button class="bsm red" onclick="deleteReply('${pkey}',${i-1})">🗑 Удалить</button>`:''}
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function quotePost(i){
+  const tid=curCatId+'_'+curForumId;
+  const t=topics[tid][curTopicIdx];
+  const pkey=tid+'_'+curTopicIdx;
+  const reps=posts[pkey]||[];
+  const all=[{author:t.author,content:t.content},...reps];
+  const p=all[i];
+  document.getElementById('reply-ta').value=`[Цитата: ${p.author}]\n${p.content.substring(0,120)}${p.content.length>120?'...':''}\n\n`;
+  document.getElementById('reply-ta').focus();
+}
+
+function deleteReply(pkey,idx){
+  openConfirm('Удалить ответ?','Ответ будет удалён навсегда.',()=>{
+    posts[pkey].splice(idx,1);S.set('posts',posts);
+    renderPosts();updateUI();showToast('Ответ удалён','🗑');
+  });
+}
+
+function submitReply(){
+  const text=document.getElementById('reply-ta').value.trim();
+  const minLen=parseInt(fSettings.minpost)||1;
+  if(!text&&!pendingFiles.reply.length){showToast('Введите текст или прикрепите файл','⚠');return;}
+  if(text&&text.length<minLen){showToast(`Минимальная длина: ${minLen} символов`,'⚠');return;}
+  const pkey=curCatId+'_'+curForumId+'_'+curTopicIdx;
+  if(!posts[pkey])posts[pkey]=[];
+  const atts=pendingFiles.reply.map(f=>({name:f.name,size:f.size,type:f.type,dataUrl:f.dataUrl,isImg:f.isImg}));
+  posts[pkey].push({author:currentUser.username,content:text||'',date:new Date().toLocaleString('ru-RU'),attachments:atts});
+  S.set('posts',posts);
+  const u=users.find(x=>x.username===currentUser.username);
+  if(u){u.posts=(u.posts||0)+1;S.set('users',users);}
+  document.getElementById('reply-ta').value='';
+  clearFiles('reply');
+  renderPosts();updateUI();
+  showToast('Ответ опубликован! ✓');
+}
+
+// ===================== PROFILE =====================
+function savePassword(){
+  const np=document.getElementById('set-newpass').value;
+  const np2=document.getElementById('set-newpass2').value;
+  if(!np){showToast('Введите пароль','⚠');return;}
+  if(np.length<4){showToast('Минимум 4 символа','⚠');return;}
+  if(np!==np2){showToast('Пароли не совпадают','⚠');return;}
+  const u=users.find(x=>x.username===currentUser.username);
+  if(u){u.password=np;S.set('users',users);}
+  document.getElementById('set-newpass').value='';document.getElementById('set-newpass2').value='';
+  showToast('Пароль изменён ✓');
+}
+
+// ===================== FORUM SETTINGS =====================
+function openForumSettings(){
+  if(!isDirector(currentUser)){showToast('Только Директор может менять настройки форума','⚠');return;}
+  document.getElementById('fs-name').value=fSettings.name||'';
+  document.getElementById('fs-desc').value=fSettings.desc||'';
+  document.getElementById('fs-welcome').value=fSettings.welcome||'';
+  document.getElementById('fs-reg').value=parseInt(fSettings.reg)===0?'0':'1';
+  document.getElementById('fs-uploads').value=parseInt(fSettings.uploads)===0?'0':'1';
+  document.getElementById('fs-topics').value=parseInt(fSettings.topics)===0?'0':'1';
+  document.getElementById('fs-minpost').value=fSettings.minpost||1;
+  document.getElementById('fs-custom-color').value=fSettings.customColor||'';
+  document.getElementById('fs-color-preview').style.background=fSettings.customColor||'var(--purple)';
+  buildThemeGrid();
+}
+function saveForumSettings(){
+  fSettings.name=document.getElementById('fs-name').value.trim()||'Prism';
+  fSettings.desc=document.getElementById('fs-desc').value.trim();
+  fSettings.welcome=document.getElementById('fs-welcome').value.trim();
+  fSettings.reg=document.getElementById('fs-reg').value;
+  fSettings.uploads=document.getElementById('fs-uploads').value;
+  fSettings.topics=document.getElementById('fs-topics').value;
+  fSettings.minpost=parseInt(document.getElementById('fs-minpost').value)||1;
+  const cc=document.getElementById('fs-custom-color').value.trim();
+  if(cc&&/^#[0-9a-fA-F]{6}$/.test(cc)){fSettings.customColor=cc;fSettings.theme='custom';applyTheme('custom',cc);}
+  else if(!fSettings.customColor){applyTheme(fSettings.theme||'purple');}
+  S.set('fsettings',fSettings);
+  applyBranding();closeModal('modal-forum-settings');
+  showToast('Настройки сохранены ✓');
+}
+
+// ===================== CATEGORIES =====================
+function renderModalCats(){
+  const el=document.getElementById('cats-admin-list');
+  if(!cats.length){el.innerHTML='<div style="color:var(--text3);font-size:13px;text-align:center;padding:14px">Нет разделов</div>';return;}
+  el.innerHTML=cats.map((c,ci)=>`
+    <div style="background:var(--bg4);border:1px solid var(--border);border-radius:9px;padding:12px 15px;margin-bottom:8px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+        <span style="font-size:20px">${c.icon||'📂'}</span>
+        <strong style="font-size:14px;flex:1">${c.name}</strong>
+        <button class="bsm red" onclick="confirmDeleteCat(${ci})">🗑 Удалить</button>
+      </div>
+      ${(c.forums||[]).map((f,fi)=>`
+        <div style="display:flex;align-items:center;gap:8px;padding:5px 0 5px 28px;border-top:1px solid var(--border)">
+          <span>${f.icon||'💬'}</span>
+          <span style="flex:1;font-size:13px;color:var(--text2)">${f.name}</span>
+          <span style="font-size:11px;color:var(--text3)">${(topics[c.id+'_'+fi]||[]).length} тем</span>
+          <button class="bsm red" onclick="confirmDeleteForum(${ci},${fi})">🗑</button>
+        </div>`).join('')}
+    </div>`).join('');
+  document.getElementById('nf-cat').innerHTML=cats.map((c,i)=>`<option value="${i}">${c.name}</option>`).join('');
+}
+
+function addCategory(){
+  const name=document.getElementById('nc-name').value.trim();
+  const desc=document.getElementById('nc-desc').value.trim();
+  const icon=document.getElementById('nc-icon').value.trim()||'📂';
+  if(!name){showToast('Введите название','⚠');return;}
+  cats.push({id:'cat_'+Date.now(),name,desc,icon,forums:[]});S.set('cats',cats);
+  document.getElementById('nc-name').value='';document.getElementById('nc-desc').value='';
+  renderModalCats();renderMain();showToast('Раздел добавлен ✓');
+}
+function addForum(){
+  const ci=parseInt(document.getElementById('nf-cat').value);
+  const name=document.getElementById('nf-name').value.trim();
+  const desc=document.getElementById('nf-desc').value.trim();
+  const icon=document.getElementById('nf-icon').value.trim()||'💬';
+  if(!name){showToast('Введите название','⚠');return;}
+  cats[ci].forums.push({name,desc,icon});S.set('cats',cats);
+  document.getElementById('nf-name').value='';document.getElementById('nf-desc').value='';
+  renderModalCats();renderMain();showToast('Подраздел добавлен ✓');
+}
+function confirmDeleteCat(ci){openConfirm(`Удалить раздел "${cats[ci].name}"?`,'Все подразделы и темы будут удалены.',()=>{cats.splice(ci,1);S.set('cats',cats);renderModalCats();renderMain();showToast('Раздел удалён','🗑');});}
+function confirmDeleteForum(ci,fi){openConfirm(`Удалить подраздел "${cats[ci].forums[fi].name}"?`,'Все темы и ответы будут удалены.',()=>{cats[ci].forums.splice(fi,1);S.set('cats',cats);renderModalCats();renderMain();showToast('Подраздел удалён','🗑');});}
+
+// ===================== ROLES =====================
+const PRESET_COLORS=['#ef4444','#f97316','#f59e0b','#22c55e','#3b82f6','#8b5cf6','#a855f7','#ec4899','#14b8a6','#64748b','#b87fff','#ffffff','#fbbf24','#34d399','#ff0055','#0077ff','#9b00ff','#ff6600'];
+
+function renderRolesList(){
+  const staffRoles=roles.filter(r=>r.group==='staff'||STAFF_ROLES.includes(r.name));
+  const memberRoles=roles.filter(r=>!staffRoles.includes(r));
+  let html='<div class="role-section-label" style="padding-top:0;border-top:none">👔 Персонал</div>';
+  html+=staffRoles.map((r,i)=>{
+    const idx=roles.indexOf(r);
+    return`<div style="display:flex;align-items:center;gap:10px;padding:9px 14px;background:var(--bg4);border:1px solid var(--border);border-radius:9px;margin-bottom:7px">
+      <div style="width:14px;height:14px;border-radius:50%;background:${r.color};flex-shrink:0;box-shadow:0 0 6px ${r.color}88"></div>
+      <span class="role-pill" style="background:${r.color}22;color:${r.color};border:1px solid ${r.color}44">${r.name}</span>
+      <span style="font-size:11px;color:var(--text3);flex:1">${r.color}</span>
+      ${r.name!=='Директор'&&r.name!=='Участник'?`<button class="bsm red" onclick="deleteRole(${idx})">🗑</button>`:'<span style="font-size:10px;color:var(--text3)">системная</span>'}
+    </div>`;
+  }).join('');
+  html+='<div class="role-section-label">👤 Обычные</div>';
+  html+=memberRoles.map((r)=>{
+    const idx=roles.indexOf(r);
+    return`<div style="display:flex;align-items:center;gap:10px;padding:9px 14px;background:var(--bg4);border:1px solid var(--border);border-radius:9px;margin-bottom:7px">
+      <div style="width:14px;height:14px;border-radius:50%;background:${r.color};flex-shrink:0;box-shadow:0 0 6px ${r.color}88"></div>
+      <span class="role-pill" style="background:${r.color}22;color:${r.color};border:1px solid ${r.color}44">${r.name}</span>
+      <span style="font-size:11px;color:var(--text3);flex:1">${r.color}</span>
+      ${r.name!=='Участник'?`<button class="bsm red" onclick="deleteRole(${idx})">🗑</button>`:'<span style="font-size:10px;color:var(--text3)">системная</span>'}
+    </div>`;
+  }).join('');
+  document.getElementById('roles-list').innerHTML=html;
+  document.getElementById('preset-colors').innerHTML=PRESET_COLORS.map(c=>`<div class="cswatch" style="background:${c}" onclick="selectColor('${c}')"></div>`).join('');
+}
+function selectColor(c){document.getElementById('nr-color').value=c;document.querySelectorAll('.cswatch').forEach(el=>el.classList.toggle('sel',el.style.background===c));}
+function addRole(){
+  const name=document.getElementById('nr-name').value.trim();
+  const color=document.getElementById('nr-color').value.trim()||'#7c7ca0';
+  if(!name){showToast('Введите название','⚠');return;}
+  if(roles.find(r=>r.name===name)){showToast('Такая роль уже есть','⚠');return;}
+  roles.push({name,color,group:'member'});S.set('roles',roles);
+  document.getElementById('nr-name').value='';
+  renderRolesList();showToast(`Роль "${name}" создана ✓`);
+}
+function deleteRole(i){
+  openConfirm(`Удалить роль "${roles[i].name}"?`,'Пользователи получат роль "Участник".',()=>{
+    const rn=roles[i].name;
+    users.forEach(u=>{if(u.role===rn)u.role='Участник';});
+    S.set('users',users);roles.splice(i,1);S.set('roles',roles);
+    renderRolesList();updateUI();showToast('Роль удалена','🗑');
+  });
+}
+
+// ===================== ASSIGN ROLE =====================
+function populateRoleSelect(selId='ar-role'){
+  // Директор не может раздавать роль Директора другим
+  const filteredRoles = isDirector(currentUser)
+    ? roles.filter(r=>r.name!=='Директор')
+    : roles.filter(r=>MEMBER_ROLES.includes(r.name));
+  document.getElementById(selId).innerHTML=filteredRoles.map(r=>`<option value="${r.name}">${r.name}</option>`).join('');
+}
+function assignRole(){
+  const uname=document.getElementById('ar-user').value.trim();
+  const role=document.getElementById('ar-role').value;
+  const err=document.getElementById('ar-err');
+  const u=users.find(x=>x.username===uname);
+  if(!u){err.textContent='Пользователь не найден';err.style.display='block';return;}
+  if(u.role==='Директор'&&!isDirector(currentUser)){err.textContent='Нельзя менять роль Директора';err.style.display='block';return;}
+  err.style.display='none';u.role=role;S.set('users',users);
+  document.getElementById('ar-user').value='';
+  closeModal('modal-assign-role');renderAdminUsers();updateUI();
+  showToast(`Роль "${role}" выдана ${uname} ✓`);
+}
+
+// ===================== ADMIN USERS =====================
+function renderAdminUsers(){
+  document.getElementById('adm-utbl').innerHTML=`
+    <thead><tr><th>Пользователь</th><th>Постов</th><th>Тем</th><th>Роль</th><th>Статус</th><th>Рег.</th><th>Действия</th></tr></thead>
+    <tbody>${users.map((u,i)=>{
+      const rc=roleColor(u.role);
+      const banned=u.banned?`<span style="color:var(--danger);font-size:10px;font-weight:700">🚫 Бан</span>`:`<span style="color:var(--success);font-size:10px;font-weight:700">✓ Активен</span>`;
+      const isSelf=u.username===currentUser.username;
+      const isDir=u.role==='Директор';
+      let actions='';
+      if(!isSelf&&!isDir){
+        if(isDirector(currentUser)||currentUser.role==='Куратор'){
+          actions+=`<button class="bsm" onclick="quickAssign(${i})" style="margin-right:4px">Роль</button>`;
+        }
+        actions+=`<button class="bsm" onclick="adminResetPass(${i})" style="margin-right:4px">🔑</button>`;
+        if(!u.banned){
+          actions+=`<button class="bsm red" onclick="openBanModal(${i})" style="margin-right:4px">🚫</button>`;
+        }else{
+          actions+=`<button class="bsm" onclick="unbanUser(${i})" style="margin-right:4px;color:var(--success)">✓ Разбан</button>`;
+        }
+        if(isDirector(currentUser)){
+          actions+=`<button class="bsm red" onclick="confirmDelUser(${i})">🗑</button>`;
+        }
+      }else if(isSelf){
+        actions='<span style="color:var(--text3);font-size:10px">Вы</span>';
+      }else{
+        actions='<span style="color:var(--gold);font-size:10px">👑 Директор</span>';
+      }
+      return`<tr>
+        <td><div style="display:flex;align-items:center;gap:8px"><div class="av sm" style="background:linear-gradient(135deg,${rc},#1a1a2e)">${u.username[0].toUpperCase()}</div><strong>${u.username}</strong></div></td>
+        <td>${u.posts||0}</td><td>${u.topics||0}</td>
+        <td><span class="role-pill" style="background:${rc}22;color:${rc};border:1px solid ${rc}44">${u.role}</span></td>
+        <td>${banned}</td>
+        <td style="font-size:11px;color:var(--text3)">${u.joined||'—'}</td>
+        <td>${actions}</td>
+      </tr>`;
+    }).join('')}</tbody>`;
+}
+function quickAssign(i){document.getElementById('ar-user').value=users[i].username;populateRoleSelect();document.getElementById('ar-err').style.display='none';openModal('modal-assign-role');}
+function adminResetPass(i){
+  openConfirm(`Сбросить пароль "${users[i].username}"?`,'Новый пароль будет: pass123',()=>{
+    users[i].password='pass123';S.set('users',users);showToast(`Пароль сброшен → pass123 🔑`);
+  });
+}
+function confirmDelUser(i){
+  openConfirm(`Удалить аккаунт "${users[i].username}"?`,'Навсегда. Все данные удалятся.',()=>{
+    users.splice(i,1);S.set('users',users);renderAdminUsers();updateUI();showToast('Аккаунт удалён','🗑');
+  });
+}
+function openBanModal(i){banTargetIdx=i;document.getElementById('ban-reason').value='';openModal('modal-ban');}
+function executeBan(){
+  if(banTargetIdx===null)return;
+  const reason=document.getElementById('ban-reason').value.trim()||'Нарушение правил';
+  users[banTargetIdx].banned=true;
+  users[banTargetIdx].banReason=reason;
+  S.set('users',users);
+  closeModal('modal-ban');
+  renderAdminUsers();
+  showToast(`Пользователь заблокирован 🚫`);
+  banTargetIdx=null;
+}
+function unbanUser(i){
+  users[i].banned=false;users[i].banReason='';
+  S.set('users',users);renderAdminUsers();showToast('Пользователь разблокирован ✓');
+}
+function adminAddUser(){
+  const u=document.getElementById('au-user').value.trim();
+  const p=document.getElementById('au-pass').value;
+  const r=document.getElementById('au-role').value;
+  const err=document.getElementById('au-err');
+  if(!u||!p){err.textContent='Заполните все поля';err.style.display='block';return;}
+  if(users.find(x=>x.username===u)){err.textContent='Логин занят';err.style.display='block';return;}
+  err.style.display='none';
+  users.push({username:u,password:p,role:r,posts:0,topics:0,joined:new Date().toLocaleDateString('ru-RU'),banned:false});
+  S.set('users',users);closeModal('modal-add-user');renderAdminUsers();updateUI();
+  showToast(`Аккаунт "${u}" создан ✓`);
+}
+function scrollToUsers(){document.getElementById('adm-users-section').scrollIntoView({behavior:'smooth'});}
+
+// DEL TOPICS
+function openDelTopicsModal(){
+  let html='';
+  cats.forEach(cat=>{
+    (cat.forums||[]).forEach((f,fi)=>{
+      const tid=cat.id+'_'+fi;
+      const ft=topics[tid]||[];
+      if(ft.length){
+        html+=`<div style="margin-bottom:14px"><div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--purple3);text-transform:uppercase;margin-bottom:6px">${cat.name} › ${f.name}</div>`;
+        html+=ft.map((t,ti)=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg4);border:1px solid var(--border);border-radius:8px;margin-bottom:5px">
+          <span style="flex:1;font-size:13px">${t.title}</span>
+          <span style="font-size:11px;color:var(--text3)">${t.author}</span>
+          <button class="bsm red" onclick="confirmDelTopic('${tid}',${ti})">🗑</button>
+        </div>`).join('');
+        html+='</div>';
+      }
+    });
+  });
+  document.getElementById('del-topics-list').innerHTML=html||'<div style="color:var(--text3);font-size:13px;text-align:center;padding:20px">Тем нет</div>';
+}
+
+// ===================== MODALS =====================
+function openModal(id){
+  document.getElementById(id).classList.add('open');
+  if(id==='modal-forum-settings')openForumSettings();
+  if(id==='modal-categories')renderModalCats();
+  if(id==='modal-roles')renderRolesList();
+  if(id==='modal-assign-role')populateRoleSelect();
+  if(id==='modal-add-user')populateRoleSelect('au-role');
+  if(id==='modal-del-topics')openDelTopicsModal();
+}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(el=>{
+  el.addEventListener('click',e=>{if(e.target===el)el.classList.remove('open');});
+});
+let _cb=null;
+function openConfirm(title,msg,cb){
+  document.getElementById('confirm-title').textContent=title;
+  document.getElementById('confirm-msg').textContent=msg;
+  _cb=cb;
+  document.getElementById('confirm-ok').onclick=()=>{closeModal('modal-confirm');if(_cb)_cb();};
+  openModal('modal-confirm');
+}
+
+// ===================== TOAST =====================
+function showToast(msg,icon='✓'){
+  const t=document.getElementById('toast');
+  document.getElementById('toast-msg').textContent=msg;
+  document.getElementById('toast-icon').textContent=icon;
+  t.classList.add('show');clearTimeout(t._to);
+  t._to=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// ===================== INIT =====================
+applyBranding();
+renderMain();
+</script>
+</body>
+</html>
